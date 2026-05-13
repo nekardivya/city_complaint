@@ -6,6 +6,8 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/city_complaint";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@citycomplaint.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
 app.use(cors());
 app.use(express.json());
@@ -19,7 +21,8 @@ const userSchema = new mongoose.Schema(
     stateCode: { type: String, trim: true },
     state: { type: String, trim: true },
     district: { type: String, trim: true },
-    city: { type: String, trim: true }
+    city: { type: String, trim: true },
+    role: { type: String, enum: ["user", "admin"], default: "user" }
   },
   { timestamps: true }
 );
@@ -40,6 +43,30 @@ const complaintSchema = new mongoose.Schema(
 
 const User = mongoose.model("User", userSchema);
 const Complaint = mongoose.model("Complaint", complaintSchema);
+
+async function createDefaultAdmin() {
+  const admin = await User.findOne({ email: ADMIN_EMAIL });
+
+  if (admin) {
+    if (admin.role !== "admin") {
+      admin.role = "admin";
+      admin.password = ADMIN_PASSWORD;
+      await admin.save();
+      console.log(`Existing user promoted to admin: ${ADMIN_EMAIL}`);
+    }
+
+    return;
+  }
+
+  await User.create({
+    name: "Admin",
+    email: ADMIN_EMAIL,
+    password: ADMIN_PASSWORD,
+    role: "admin"
+  });
+
+  console.log(`Default admin created: ${ADMIN_EMAIL}`);
+}
 
 app.get("/", (req, res) => {
   res.send("Backend is running with MongoDB");
@@ -77,7 +104,8 @@ app.post("/register", async (req, res) => {
       user: {
         id: newUser._id,
         name: newUser.name,
-        email: newUser.email
+        email: newUser.email,
+        role: newUser.role
       }
     });
   } catch (error) {
@@ -105,7 +133,8 @@ app.post("/login", async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role || "user"
       }
     });
   } catch (error) {
@@ -166,10 +195,70 @@ app.get("/complaints", async (req, res) => {
   }
 });
 
+app.delete("/complaints/:id", async (req, res) => {
+  try {
+    const { userEmail } = req.body;
+
+    if (!userEmail) {
+      return res.status(401).json({ message: "Please login before deleting a complaint" });
+    }
+
+    const complaint = await Complaint.findOneAndDelete({
+      _id: req.params.id,
+      userEmail
+    });
+
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    res.json({ message: "Complaint deleted successfully" });
+  } catch (error) {
+    console.error("Complaint delete error:", error.message);
+    res.status(500).json({ message: "Error deleting complaint" });
+  }
+});
+
+app.patch("/complaints/:id/status", async (req, res) => {
+  try {
+    const { adminEmail, status } = req.body;
+    const allowedStatuses = ["Pending", "In Progress", "Fixed", "Closed"];
+
+    const admin = await User.findOne({ email: adminEmail });
+
+    if (!admin || admin.role !== "admin") {
+      return res.status(403).json({ message: "Only admin can update complaint status" });
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid complaint status" });
+    }
+
+    const complaint = await Complaint.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!complaint) {
+      return res.status(404).json({ message: "Complaint not found" });
+    }
+
+    res.json({
+      message: "Complaint status updated successfully",
+      complaint
+    });
+  } catch (error) {
+    console.error("Complaint status update error:", error.message);
+    res.status(500).json({ message: "Error updating complaint status" });
+  }
+});
+
 mongoose
   .connect(MONGO_URI)
-  .then(() => {
+  .then(async () => {
     console.log("MongoDB connected");
+    await createDefaultAdmin();
     app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });

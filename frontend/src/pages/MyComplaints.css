@@ -1,0 +1,57 @@
+.my-complaints-page {
+  min-height: calc(100vh - 74px);
+  padding: 28px clamp(16px, 5vw, 70px);
+  background: #f3f7f5;
+  color: #17231f;
+}
+
+.my-complaints-page h2 {
+  margin: 0 0 18px;
+}
+
+.my-complaints-message {
+  margin: 0 0 14px;
+  color: #4d6662;
+  font-weight: 700;
+}
+
+.my-complaint-card {
+  padding: 18px;
+  margin-bottom: 14px;
+  border: 1px solid #d9e8df;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(22, 44, 34, 0.08);
+}
+
+.my-complaint-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.my-complaint-card h3 {
+  margin: 0 0 10px;
+}
+
+.my-complaint-card p {
+  margin: 8px 0;
+  color: #3f5048;
+}
+
+.delete-complaint-button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  background: #c43b3b;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+
+.delete-complaint-button:hover {
+  background: #a82f2f;
+}

@@ -1,0 +1,147 @@
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  min-height: 74px;
+  padding: 12px clamp(18px, 5vw, 70px);
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid #dfe8e2;
+  box-shadow: 0 10px 30px rgba(22, 44, 34, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: #17231f;
+  text-decoration: none;
+  min-width: max-content;
+}
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: #168449;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0;
+  box-shadow: 0 10px 20px rgba(22, 132, 73, 0.26);
+}
+
+.header-brand strong,
+.header-brand small {
+  display: block;
+  letter-spacing: 0;
+}
+
+.header-brand strong {
+  font-size: 20px;
+  line-height: 1.1;
+}
+
+.header-brand small {
+  margin-top: 4px;
+  color: #607168;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.header-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 6px;
+  color: #2f4038;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.header-nav a:hover {
+  background: #edf7f1;
+  color: #136f3f;
+}
+
+.header-nav a.active {
+  background: #e0f3e8;
+  color: #0f6538;
+}
+
+.header-nav .register-link {
+  background: #168449;
+  color: #ffffff;
+  padding: 0 18px;
+  box-shadow: 0 10px 20px rgba(22, 132, 73, 0.2);
+}
+
+.header-nav .register-link:hover,
+.header-nav .register-link.active {
+  background: #126f3e;
+  color: #ffffff;
+}
+
+@media (max-width: 820px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .header-brand {
+    width: 100%;
+  }
+
+  .header-nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-header {
+    padding: 12px 14px;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .header-brand strong {
+    font-size: 18px;
+  }
+
+  .header-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .header-nav a {
+    width: 100%;
+    padding: 0 10px;
+    font-size: 14px;
+  }
+}
