@@ -9,7 +9,7 @@
 }
 
 .login-card {
-  width: min(680px, 100%);
+  width: min(550px, 100%);
   position: relative;
   box-sizing: border-box;
   padding: 78px 28px 28px;
@@ -36,6 +36,32 @@
   gap: 14px;
 }
 
+.login-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+
+.login-submit,
+.login-logout {
+  width: 250px;
+  height: 42px;
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.login-logout {
+  background: #c94747;
+}
+
+.login-logout:hover {
+  filter: brightness(0.95);
+}
+
 .login-form input {
   width: 100%;
   box-sizing: border-box;
@@ -60,15 +86,7 @@
 }
 
 .login-submit {
-  width: 100%;
-  height: 48px;
-  border: 0;
-  border-radius: 7px;
   background: #2f928e;
-  color: #fff;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: 700;
 }
 
 .login-submit:hover {
@@ -85,9 +103,9 @@
 
 .login-links {
   display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 0 22px;
+  justify-content: center;
+  gap: 5px;
+  padding: 0px;
   margin-top: 0;
 }
 
@@ -107,6 +125,15 @@
 
   .login-form input {
     font-size: 17px;
+  }
+
+  .login-actions {
+    flex-direction: column;
+  }
+
+  .login-submit,
+  .login-logout {
+    width: 100%;
   }
 
   .login-links {

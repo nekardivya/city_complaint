@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import AddComplaint from "./pages/AddComplaint";
 import MyComplaints from "./pages/MyComplaints";
 import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
 import { getCurrentUser, isAdminUser } from "./utils/auth";
 
 function ProtectedRoute({ children }) {
@@ -43,6 +44,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/profile/:email" element={<Profile />} />
         <Route
           path="/add-complaint"
           element={

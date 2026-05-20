@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./Register.css";
 
@@ -9,19 +9,12 @@ function Register() {
     email: "",
     mobile: "",
     password: "",
-    stateCode: "",
-    state: "",
-    district: "",
-    city: "",
-    captcha: ""
+    address: "",
+    profileImage: "",
+    gender: "",
+    personType: ""
   });
-  const [captchaSeed, setCaptchaSeed] = useState(0);
   const [message, setMessage] = useState("");
-
-  const captcha = useMemo(() => {
-    const values = ["F Q H 5 5", "A 8 M 2 K", "T 6 Y 4 P"];
-    return values[captchaSeed % values.length];
-  }, [captchaSeed]);
 
   const handleChange = (e) => {
     setForm({
@@ -30,13 +23,31 @@ function Register() {
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
 
-    if (form.captcha.replace(/\s/g, "") !== captcha.replace(/\s/g, "")) {
-      setMessage("Captcha does not match");
+    if (!file) {
+      setForm({
+        ...form,
+        profileImage: ""
+      });
       return;
     }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      setForm({
+        ...form,
+        profileImage: reader.result
+      });
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     try {
       const res = await fetch("http://localhost:5000/register", {
@@ -51,18 +62,18 @@ function Register() {
 
       if (res.ok) {
         setMessage(data.message);
+        localStorage.setItem("cityComplaintUser", JSON.stringify(data.user));
         setForm({
           name: "",
           email: "",
           mobile: "",
           password: "",
-          stateCode: "",
-          state: "",
-          district: "",
-          city: "",
-          captcha: ""
+          address: "",
+          profileImage: "",
+          gender: "",
+          personType: ""
         });
-        setTimeout(() => navigate("/login"), 800);
+        setTimeout(() => navigate(`/profile/${data.user.email}`), 800);
       } else {
         setMessage(data.message || "Registration failed");
       }
@@ -79,102 +90,140 @@ function Register() {
         </Link>
 
         <form className="register-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="name"
-            placeholder="Enter your Full Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="tel"
-            name="mobile"
-            placeholder="Enter your Mobile Number"
-            value={form.mobile}
-            onChange={handleChange}
-            required
-          />
-
-          <input
-            type="password"
-            name="password"
-            placeholder="Create Password"
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
-
-          <p className="state-note">
-            State code is required. Get it from your State Login Profile.
-          </p>
-
-          <input
-            type="text"
-            name="stateCode"
-            placeholder="Enter State Code"
-            value={form.stateCode}
-            onChange={handleChange}
-            required
-          />
-
-          <select name="state" value={form.state} onChange={handleChange} required>
-            <option value="">Choose State</option>
-            <option value="Maharashtra">Maharashtra</option>
-            <option value="Karnataka">Karnataka</option>
-            <option value="Tamil Nadu">Tamil Nadu</option>
-            <option value="Delhi">Delhi</option>
-          </select>
-
-          <select name="district" value={form.district} onChange={handleChange} required>
-            <option value="">Choose District</option>
-            <option value="Central">Central</option>
-            <option value="North">North</option>
-            <option value="South">South</option>
-            <option value="West">West</option>
-          </select>
-
-          <select name="city" value={form.city} onChange={handleChange} required>
-            <option value="">Choose City</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Bengaluru">Bengaluru</option>
-            <option value="Chennai">Chennai</option>
-            <option value="New Delhi">New Delhi</option>
-          </select>
-
-          <div className="register-captcha-row">
-            <div className="register-captcha-box" aria-label={`Captcha ${captcha}`}>
-              <span>{captcha}</span>
-              <i />
-              <i />
-              <i />
-            </div>
-            <button
-              type="button"
-              className="register-captcha-refresh"
-              aria-label="Refresh captcha"
-              onClick={() => setCaptchaSeed((seed) => seed + 1)}
+          <label className="register-field" htmlFor="register-name">
+            <span>Full Name</span>
+            <input
+              id="register-name"
+              type="text"
+              name="name"
+              placeholder="Enter your Full Name"
+              value={form.name}
+              onChange={handleChange}
+              required
             />
-          </div>
+          </label>
 
-          <input
-            type="text"
-            name="captcha"
-            placeholder="Enter Captcha"
-            value={form.captcha}
-            onChange={handleChange}
-            required
-          />
+          <label className="register-field" htmlFor="register-email">
+            <span>Email</span>
+            <input
+              id="register-email"
+              type="email"
+              name="email"
+              placeholder="Enter your Email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label className="register-field compact-field" htmlFor="register-mobile">
+            <span>Mobile Number</span>
+            <input
+              id="register-mobile"
+              className="mobile-input"
+              type="tel"
+              name="mobile"
+              placeholder="Mobile Number"
+              value={form.mobile}
+              onChange={handleChange}
+              inputMode="numeric"
+              maxLength="10"
+              pattern="[0-9]{10}"
+              required
+            />
+          </label>
+
+          <label className="register-field" htmlFor="register-password">
+            <span>Password</span>
+            <input
+              id="register-password"
+              type="password"
+              name="password"
+              placeholder="Create Password"
+              value={form.password}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label className="register-field" htmlFor="register-address">
+            <span>Address</span>
+            <input
+              id="register-address"
+              type="text"
+              name="address"
+              placeholder="Enter your Address"
+              value={form.address}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <fieldset className="register-field gender-field">
+            <legend>Gender</legend>
+            <div className="form-row">
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="Male"
+                  checked={form.gender === "Male"}
+                  onChange={handleChange}
+                  required
+                />
+                Male
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="Female"
+                  checked={form.gender === "Female"}
+                  onChange={handleChange}
+                />
+                Female
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="Other"
+                  checked={form.gender === "Other"}
+                  onChange={handleChange}
+                />
+                Other
+              </label>
+            </div>
+          </fieldset>
+
+          <label className="register-field" htmlFor="register-person-type">
+            <span>Person Type</span>
+            <select
+              id="register-person-type"
+              name="personType"
+              value={form.personType}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Person Type</option>
+              <option value="Employee">Employee</option>
+              <option value="Own Business">Own Business</option>
+              <option value="Student">Student</option>
+              <option value="Housewife">Housewife</option>
+              <option value="Retired">Retired</option>
+              <option value="Other">Other</option>
+            </select>
+          </label>
+
+          <label className="picture-field">
+            <span>Profile Picture</span>
+            <input
+              type="file"
+              name="profileImage"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+          </label>
 
           <button className="register-submit" type="submit">
             Register Account

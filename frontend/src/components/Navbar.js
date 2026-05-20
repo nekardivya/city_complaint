@@ -37,13 +37,19 @@ function Navbar() {
           </NavLink>
         )}
 
-        <NavLink to="/login">
-          Login
-        </NavLink>
-
         <NavLink className="register-link" to="/register">
           Register
         </NavLink>
+
+        <NavLink to="/login">
+          Login
+        </NavLink>
+        
+        {user && (
+          <NavLink to={`/profile/${user.email}`}>
+            Profile
+          </NavLink>
+        )}
       </nav>
     </header>
   );

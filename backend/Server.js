@@ -10,22 +10,22 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@citycomplaint.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 
 const userSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true },
-    mobile: { type: String, trim: true },
-    stateCode: { type: String, trim: true },
-    state: { type: String, trim: true },
-    district: { type: String, trim: true },
-    city: { type: String, trim: true },
-    role: { type: String, enum: ["user", "admin"], default: "user" }
-  },
-  { timestamps: true }
-);
+   {
+     name: { type: String, required: true, trim: true },
+     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+     password: { type: String, required: true },
+     mobile: { type: String, trim: true },
+     address: { type: String, trim: true },
+     gender: { type: String, trim: true },
+     personType: { type: String, trim: true },
+     profileImage: { type: String, trim: true },
+     role: { type: String, enum: ["user", "admin"], default: "user" }
+   },
+   { timestamps: true }
+ );
 
 const complaintSchema = new mongoose.Schema(
   {
@@ -73,41 +73,46 @@ app.get("/", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  try {
-    const { name, email, password, mobile, stateCode, state, district, city } = req.body;
+   try {
+     const { name, email, password, mobile, address, gender, personType, profileImage } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email, and password are required" });
-    }
+     if (!name || !email || !password) {
+       return res.status(400).json({ message: "Name, email, and password are required" });
+     }
 
-    const existingUser = await User.findOne({ email });
+     const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-      return res.status(409).json({ message: "This email is already registered" });
-    }
+     if (existingUser) {
+       return res.status(409).json({ message: "This email is already registered" });
+     }
 
-    const newUser = await User.create({
-      name,
-      email,
-      password,
-      mobile,
-      stateCode,
-      state,
-      district,
-      city
-    });
+     const newUser = await User.create({
+       name,
+       email,
+       password,
+       mobile,
+       address,
+       gender,
+       personType,
+       profileImage
+     });
 
-    console.log("Registered user:", newUser.email);
+     console.log("Registered user:", newUser.email);
 
-    res.status(201).json({
-      message: "User registered successfully. Please login.",
-      user: {
-        id: newUser._id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role
-      }
-    });
+     res.status(201).json({
+       message: "User registered successfully. Please login.",
+       user: {
+         id: newUser._id,
+         name: newUser.name,
+         email: newUser.email,
+         mobile: newUser.mobile,
+         address: newUser.address,
+         gender: newUser.gender,
+         personType: newUser.personType,
+         profileImage: newUser.profileImage,
+         role: newUser.role
+       }
+     });
   } catch (error) {
     console.error("Register error:", error.message);
     res.status(500).json({ message: "Registration failed" });
@@ -134,6 +139,11 @@ app.post("/login", async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        mobile: user.mobile,
+        address: user.address,
+        gender: user.gender,
+        personType: user.personType,
+        profileImage: user.profileImage,
         role: user.role || "user"
       }
     });
@@ -254,7 +264,75 @@ app.patch("/complaints/:id/status", async (req, res) => {
   }
 });
 
-mongoose
+app.get("/profile/:email", async (req, res) => {
+   try {
+     const user = await User.findOne({ email: req.params.email });
+
+     if (!user) {
+       return res.status(404).json({ message: "User not found" });
+     }
+
+     res.json({
+       user: {
+         id: user._id,
+         name: user.name,
+         email: user.email,
+         mobile: user.mobile,
+         address: user.address,
+         gender: user.gender,
+         personType: user.personType,
+         profileImage: user.profileImage,
+         role: user.role
+       }
+     });
+   } catch (error) {
+     console.error("Profile fetch error:", error.message);
+     res.status(500).json({ message: "Error loading profile" });
+   }
+ });
+
+app.patch("/profile/:email", async (req, res) => {
+  try {
+    const allowedFields = ["name", "mobile", "address", "gender", "personType", "profileImage"];
+    const updates = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    const user = await User.findOneAndUpdate(
+      { email: req.params.email },
+      updates,
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      message: "Profile updated successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        mobile: user.mobile,
+        address: user.address,
+        gender: user.gender,
+        personType: user.personType,
+        profileImage: user.profileImage,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error("Profile update error:", error.message);
+    res.status(500).json({ message: "Error updating profile" });
+  }
+});
+
+ mongoose
   .connect(MONGO_URI)
   .then(async () => {
     console.log("MongoDB connected");

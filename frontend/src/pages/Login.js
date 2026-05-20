@@ -44,6 +44,12 @@ function Login() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("cityComplaintUser");
+    setMessage("Logged out successfully");
+    navigate("/login");
+  };
+
   return (
     <main className="login-page">
       <section className="login-card" aria-label="Login form">
@@ -70,15 +76,20 @@ function Login() {
             required
           />
 
-          <button className="login-submit" type="submit">
-            Login
-          </button>
+          <div className="login-actions">
+            <button className="login-submit" type="submit">
+              Login
+            </button>
+
+            <button className="login-logout" type="button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
 
           {message && <p className="login-message">{message}</p>}
 
           <div className="login-links">
-            <Link to="/forgot-password">Forgot password?</Link>
-            <Link to="/register">Register Here</Link>
+            Don't have an account?<Link to="/register">Register Here</Link>
           </div>
         </form>
       </section>
